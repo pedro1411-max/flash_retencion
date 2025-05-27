@@ -9,9 +9,8 @@ TextEditingController activityController = TextEditingController();
 TextEditingController documentoController = TextEditingController();
 TextEditingController nombreController = TextEditingController();
 CedulaTipo? cedulaTipo = CedulaTipo.venezolano;
-
+Map alicuota = {};
 List<String> actidades = [];
-List<double> alicuotas = [];
 String? actividadalicuota;
 
 class CreateFacture extends StatefulWidget {
@@ -45,7 +44,7 @@ class _CreateFatureState extends State<CreateFacture> {
           icon: Icon(Icons.arrow_back_rounded),
         ),
         title: Text(
-          "   Modelo de factura",
+          "Modelo de Retencion",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -170,20 +169,28 @@ class _CreateFatureState extends State<CreateFacture> {
           actidades.isNotEmpty
               ? Column(
                   children: [
-                    Text("Actividades-Alicuotas"),
-                    DropdownButton(
-                      value: actividadalicuota,
-                      items: actidades.map((String e) {
-                        return DropdownMenuItem<String>(
-                          value: e,
-                          child: Text(e),
-                        );
-                      }).toList(),
-                      onChanged: (d) {
-                        setState(() {
-                          actividadalicuota = d;
-                        });
-                      },
+                    Text(
+                      "Actividades-Alicuotas",
+
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      width: 400,
+                      child: DropdownButton(
+                        isExpanded: true,
+                        value: actividadalicuota,
+                        items: actidades.map((String e) {
+                          return DropdownMenuItem<String>(
+                            value: e,
+                            child: Text(e),
+                          );
+                        }).toList(),
+                        onChanged: (d) {
+                          setState(() {
+                            actividadalicuota = d;
+                          });
+                        },
+                      ),
                     ),
                     SizedBox(height: 20),
                   ],
@@ -303,28 +310,26 @@ class _BusquedaState extends State<Busqueda> {
                                 ),
                                 suffix: IconButton(
                                   onPressed: () async {
-                                    alicuotas.clear();
                                     actidades.clear();
-                                    final List? info = await buscarRif(
+                                    // final List? info = await buscarRif(
+                                    // context,
+                                    //documentoController.text,
+                                    //cedulaTipo,
+                                    //);
+
+                                    alicuota = await busaralicuotas(
                                       context,
                                       documentoController.text,
-                                      cedulaTipo,
                                     );
-
-                                    final alicuota = await busaralicuotas(
-                                      context,
-                                      documentoController.text,
-                                    );
-
-                                    for (var entidad in alicuota.items) {
-                                      alicuotas.add(entidad.txtAlicuota);
-                                      actidades.add(entidad.txtDescripcion);
+                                    for (var element in alicuota.keys) {
+                                      actidades.add(element);
                                     }
-                                    if (info?[0] != null) {
-                                      nombreController.text = info?[0];
-                                      retencionController.text = info?[1];
-                                      activityController.text = info?[2];
-                                    }
+
+                                    //      if (info?[0] != null) {
+                                    //      nombreController.text = info?[0];
+                                    //    retencionController.text = info?[1];
+                                    //  activityController.text = info?[2];
+                                    // }
                                   },
                                   icon: Icon(Icons.search),
                                 ),
