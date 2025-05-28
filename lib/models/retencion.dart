@@ -6,6 +6,7 @@ class Retencion {
   double retenIslr;
   double retenIva;
   double retenIae;
+  double porcentajeIAE;
 
   Retencion(
     this.documento,
@@ -15,6 +16,7 @@ class Retencion {
     this.retenIslr,
     this.retenIva,
     this.retenIae,
+    this.porcentajeIAE,
   );
 
   double montoConIva() {
@@ -32,7 +34,7 @@ class Retencion {
   }
 
   double retencionIae() {
-    return montoBase * (retenIae / 100) * 0.5;
+    return montoBase * (retenIae / 100) * (porcentajeIAE / 100);
   }
 
   double montoTotal() {

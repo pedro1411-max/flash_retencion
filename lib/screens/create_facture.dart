@@ -17,6 +17,7 @@ CedulaTipo? cedulaTipo = CedulaTipo.venezolano;
 Map alicuota = {};
 List<String> actidades = [];
 String? actividadalicuota;
+Porcentaje porcentajeIae = Porcentaje.p50;
 
 class CreateFacture extends StatefulWidget {
   const CreateFacture({super.key});
@@ -198,6 +199,27 @@ class _CreateFatureState extends State<CreateFacture> {
                         },
                       ),
                     ),
+
+                    Text(
+                      "Porcentaje de IAE %",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Center(
+                      child: DropdownButton(
+                        value: porcentajeIae,
+                        items: Porcentaje.values.map((Porcentaje e) {
+                          return DropdownMenuItem<Porcentaje>(
+                            value: e,
+                            child: Text(e.name.substring(1)),
+                          );
+                        }).toList(),
+                        onChanged: (d) {
+                          setState(() {
+                            porcentajeIae = d!;
+                          });
+                        },
+                      ),
+                    ),
                     SizedBox(height: 20),
                   ],
                 )
@@ -244,6 +266,7 @@ class _CreateFatureState extends State<CreateFacture> {
                           : 5.00,
                       double.parse(retencionController.text),
                       double.parse(alicuota[actividadalicuota] ?? '0'),
+                      porcentajeIae == Porcentaje.p50 ? 50 : 100,
                     );
                     Navigator.push(
                       context,
@@ -338,6 +361,8 @@ class _BusquedaState extends State<Busqueda> {
                                 suffix: IconButton(
                                   onPressed: () async {
                                     actidades.clear();
+
+                                    actividadalicuota = null;
                                     final List? info = await buscarRif(
                                       context,
                                       documentoController.text,
@@ -393,8 +418,8 @@ class _BusquedaState extends State<Busqueda> {
                                   descripcionController.clear();
                                   retencionController.clear();
                                   montoController.clear();
-                                  actividadalicuota = null;
                                   actidades = [];
+                                  actividadalicuota = null;
                                 },
                                 label: Icon(Icons.data_saver_off),
                               ),
