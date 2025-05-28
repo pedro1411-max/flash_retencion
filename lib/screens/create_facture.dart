@@ -1,4 +1,5 @@
 import 'package:flash_retencion/constanst.dart';
+import 'package:flash_retencion/models/retencion.dart';
 import 'package:flash_retencion/screens/facture.dart';
 import 'package:flash_retencion/widgets/buscar_alicuotas.dart';
 import 'package:flash_retencion/widgets/buscar_rif.dart';
@@ -8,6 +9,10 @@ TextEditingController retencionController = TextEditingController();
 TextEditingController activityController = TextEditingController();
 TextEditingController documentoController = TextEditingController();
 TextEditingController nombreController = TextEditingController();
+
+TextEditingController descripcionController = TextEditingController();
+
+TextEditingController montoController = TextEditingController();
 CedulaTipo? cedulaTipo = CedulaTipo.venezolano;
 Map alicuota = {};
 List<String> actidades = [];
@@ -72,6 +77,7 @@ class _CreateFatureState extends State<CreateFacture> {
           Text(activityController.text),
           SizedBox(height: 20),
           TextFormField(
+            controller: descripcionController,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: "Descripcion",
@@ -199,6 +205,7 @@ class _CreateFatureState extends State<CreateFacture> {
           TextFormField(
             keyboardType: TextInputType.number,
             textAlign: TextAlign.end,
+            controller: montoController,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: "Monto Base",
@@ -220,9 +227,29 @@ class _CreateFatureState extends State<CreateFacture> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
+                    Retencion retencion = Retencion(
+                      "${cedulaTipo!.name[0].toString().toUpperCase()}-${documentoController.text}",
+                      nombreController.text,
+                      descripcionController.text,
+                      double.parse(montoController.text),
+                      compraTipo == CompraTipo.compra
+                          ? 0
+                          : cedulaTipo == CedulaTipo.venezolano ||
+                                cedulaTipo == CedulaTipo.extranjero
+                          ? 1.00
+                          : porcentajeTipo == PorcentajeTipo.p2
+                          ? 2.00
+                          : porcentajeTipo == PorcentajeTipo.p3
+                          ? 3.00
+                          : 5.00,
+                      double.parse(retencionController.text),
+                      double.parse(alicuota[actividadalicuota] ?? '0'),
+                    );
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Facture()),
+                      MaterialPageRoute(
+                        builder: (context) => Facture(retencion),
+                      ),
                     );
                   },
                   label: Icon(Icons.calculate),
@@ -311,11 +338,11 @@ class _BusquedaState extends State<Busqueda> {
                                 suffix: IconButton(
                                   onPressed: () async {
                                     actidades.clear();
-                                    // final List? info = await buscarRif(
-                                    // context,
-                                    //documentoController.text,
-                                    //cedulaTipo,
-                                    //);
+                                    final List? info = await buscarRif(
+                                      context,
+                                      documentoController.text,
+                                      cedulaTipo,
+                                    );
 
                                     alicuota = await busaralicuotas(
                                       context,
@@ -325,11 +352,11 @@ class _BusquedaState extends State<Busqueda> {
                                       actidades.add(element);
                                     }
 
-                                    //      if (info?[0] != null) {
-                                    //      nombreController.text = info?[0];
-                                    //    retencionController.text = info?[1];
-                                    //  activityController.text = info?[2];
-                                    // }
+                                    if (info?[0] != null) {
+                                      nombreController.text = info?[0];
+                                      retencionController.text = info?[1];
+                                      activityController.text = info?[2];
+                                    }
                                   },
                                   icon: Icon(Icons.search),
                                 ),
@@ -363,6 +390,11 @@ class _BusquedaState extends State<Busqueda> {
                                 onPressed: () {
                                   nombreController.clear();
                                   documentoController.clear();
+                                  descripcionController.clear();
+                                  retencionController.clear();
+                                  montoController.clear();
+                                  actividadalicuota = null;
+                                  actidades = [];
                                 },
                                 label: Icon(Icons.data_saver_off),
                               ),
