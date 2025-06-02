@@ -1,9 +1,12 @@
+import 'package:flash_retencion/database.dart';
+import 'package:flash_retencion/main.dart';
 import 'package:flash_retencion/models/retencion.dart';
 import 'package:flutter/material.dart';
 
 class Facture extends StatefulWidget {
+  final guardar;
   final Retencion retencion;
-  const Facture(this.retencion, {super.key});
+  const Facture(this.guardar, this.retencion, {super.key});
   @override
   State<Facture> createState() => _FatureState();
 }
@@ -64,17 +67,33 @@ class _FatureState extends State<Facture> {
               ),
               rowResum("Monto Total:", datos.montoTotal().toStringAsFixed(2)),
               SizedBox(height: 60),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    label: Icon(Icons.save_outlined),
-                  ),
-                  SizedBox(),
-                ],
-              ),
+              widget.guardar
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await Basedatos.insertar(datos);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    MyHomePage(title: 'Flash Retencion'),
+                              ),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Retención Guardada'),
+                              ),
+                            );
+                          },
+                          label: Icon(Icons.save_outlined),
+                        ),
+                        SizedBox(),
+                      ],
+                    )
+                  : SizedBox(),
             ],
           ),
         ),

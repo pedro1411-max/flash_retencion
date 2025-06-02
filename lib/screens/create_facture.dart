@@ -250,6 +250,7 @@ class _CreateFatureState extends State<CreateFacture> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     Retencion retencion = Retencion(
+                      1,
                       "${cedulaTipo!.name[0].toString().toUpperCase()}-${documentoController.text}",
                       nombreController.text,
                       descripcionController.text,
@@ -271,7 +272,7 @@ class _CreateFatureState extends State<CreateFacture> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Facture(retencion),
+                        builder: (context) => Facture(true, retencion),
                       ),
                     );
                   },

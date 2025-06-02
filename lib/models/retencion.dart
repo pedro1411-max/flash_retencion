@@ -1,4 +1,5 @@
 class Retencion {
+  int id;
   String documento;
   String nombre;
   String descripcion;
@@ -9,6 +10,7 @@ class Retencion {
   double porcentajeIAE;
 
   Retencion(
+    this.id,
     this.documento,
     this.nombre,
     this.descripcion,
