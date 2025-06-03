@@ -63,11 +63,12 @@ class _MyHomePageState extends State<MyHomePage>
       drawer: Drawer(
         child: Column(
           children: [
+            SizedBox(height: 40),
             Text(
               "Empresa",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
             ),
-            SizedBox(height: 150),
+            SizedBox(height: 160),
 
             Image.asset('assets/1.png'),
             Expanded(child: SizedBox()),

@@ -1,27 +1,65 @@
 import 'package:flash_retencion/models/retencion.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+// Importamos ambos paquetes (el correcto se usará en tiempo de ejecución)
+import 'package:sqflite/sqflite.dart' as mobile;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as desktop;
 
 class Basedatos {
-  static Future<Database> open() async {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    final databasePath = await getDatabasesPath();
+  static bool _isDesktop = false;
+  static bool _initialized = false;
+
+  static Future<void> _init() async {
+    if (_initialized) return;
+
+    // Detectamos si estamos en escritorio (Windows/Linux/macOS)
+    _isDesktop = !kIsWeb && (await _isPlatformDesktop());
+
+    if (_isDesktop) {
+      desktop.sqfliteFfiInit();
+      desktop.databaseFactory = desktop.databaseFactoryFfi;
+    }
+
+    _initialized = true;
+  }
+
+  static Future<bool> _isPlatformDesktop() async {
+    try {
+      // Intenta acceder a una API solo disponible en desktop
+      final result = await desktop.databaseFactoryFfi.openDatabase('test');
+      await result.close();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<dynamic> open() async {
+    await _init();
+
+    final databasePath = await (_isDesktop
+        ? desktop.getDatabasesPath()
+        : mobile.getDatabasesPath());
+
     final path = join(databasePath, 'retenciones.db');
 
-    return openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE Retenciones (id INTEGER PRIMARY KEY, documento TEXT, nombre TEXT, descripcion TEXT, montobase REAL, retenIVA REAL, retenISLR REAL, retenIAE REAL, porcentIAE REAL)',
-        );
-      },
+    return _isDesktop
+        ? desktop.openDatabase(path, version: 1, onCreate: _onCreate)
+        : mobile.openDatabase(path, version: 1, onCreate: _onCreate);
+  }
+
+  static Future<void> _onCreate(dynamic db, int version) async {
+    await db.execute(
+      'CREATE TABLE Retenciones (id INTEGER PRIMARY KEY, documento TEXT, nombre TEXT, '
+      'descripcion TEXT, montobase REAL, retenIVA REAL, retenISLR REAL, '
+      'retenIAE REAL, porcentIAE REAL)',
     );
   }
 
   static Future<void> insertar(Retencion datos) async {
-    Database db = await open();
+    final db = await open();
     try {
       await db.insert('Retenciones', {
         'documento': datos.documento,
@@ -32,14 +70,14 @@ class Basedatos {
         'retenISLR': datos.retenIslr,
         'retenIAE': datos.retenIae,
         'porcentIAE': datos.porcentajeIAE,
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      });
     } finally {
       await db.close();
     }
   }
 
   static Future<void> delete(int id) async {
-    Database db = await open();
+    final db = await open();
     try {
       await db.delete('Retenciones', where: 'id = ?', whereArgs: [id]);
     } finally {
@@ -48,7 +86,7 @@ class Basedatos {
   }
 
   static Future<List<Retencion>> viewData() async {
-    Database db = await open();
+    final db = await open();
     try {
       final List<Map<String, dynamic>> mapRetenciones = await db.query(
         'Retenciones',
