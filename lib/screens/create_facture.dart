@@ -30,7 +30,7 @@ class _CreateFatureState extends State<CreateFacture> {
   CompraTipo? compraTipo = CompraTipo.compra;
   PorcentajeTipo? porcentajeTipo = PorcentajeTipo.p2;
   bool? checkedValue = false;
-
+  bool? checkedIVA = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -85,26 +85,45 @@ class _CreateFatureState extends State<CreateFacture> {
             ),
           ),
           SizedBox(height: 20),
-          Row(
-            children: [
-              Text(
-                'Retencion (IVA)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(width: 10),
-              SizedBox(
-                width: 100,
-                child: TextFormField(
-                  textAlign: TextAlign.end,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    suffix: Text("%"),
-                  ),
-                  controller: retencionController,
-                ),
-              ),
-            ],
+
+          SizedBox(
+            child: CheckboxListTile(
+              title: Text("Excento de IVA"),
+              value: checkedIVA,
+              onChanged: (newValue) {
+                setState(() {
+                  checkedIVA = newValue;
+                });
+              },
+              controlAffinity:
+                  ListTileControlAffinity.leading, //  <-- leading Checkbox
+            ),
           ),
+          checkedIVA == true
+              ? SizedBox()
+              : Row(
+                  children: [
+                    Text(
+                      'Retencion (IVA)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    SizedBox(
+                      width: 100,
+                      child: TextFormField(
+                        textAlign: TextAlign.end,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          suffix: Text("%"),
+                        ),
+                        controller: retencionController,
+                      ),
+                    ),
+                  ],
+                ),
           SizedBox(height: 10),
           Row(
             children: [
@@ -128,7 +147,6 @@ class _CreateFatureState extends State<CreateFacture> {
                   ListTileControlAffinity.leading, //  <-- leading Checkbox
             ),
           ),
-          checkedValue == true ? SizedBox() : SizedBox(),
           checkedValue == true
               ? SizedBox()
               : Row(
@@ -268,6 +286,9 @@ class _CreateFatureState extends State<CreateFacture> {
                       double.parse(retencionController.text),
                       double.parse(alicuota[actividadalicuota] ?? '0'),
                       porcentajeIae == Porcentaje.p50 ? 50 : 100,
+                      checkedIVA == true ? true : false,
+
+                      checkedValue == true ? true : false,
                     );
                     Navigator.push(
                       context,
@@ -308,181 +329,192 @@ class _BusquedaState extends State<Busqueda> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(
-          left: 30,
           top: 30,
+          left: 30,
           right: 30,
           bottom: 100,
         ),
-        child: Card(
-          elevation: 20,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(width: 1),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(15),
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 10),
-                  Text(
-                    "Buscar contribuyente",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              keyboardType: TextInputType.number,
-                              controller: documentoController,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: "Documento de identidad",
-                                prefix: DropdownButton(
-                                  value: cedulaTipo,
-                                  items: CedulaTipo.values.map((CedulaTipo e) {
-                                    return DropdownMenuItem<CedulaTipo>(
-                                      value: e,
-                                      child: Text(
-                                        e.name[0].toUpperCase().toString(),
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (d) {
-                                    setState(() {
-                                      cedulaTipo = d;
-                                    });
-                                  },
-                                ),
-                                suffix: IconButton(
-                                  onPressed: () async {
-                                    actidades.clear();
+        child: Center(
+          child: SizedBox(
+            width: 600,
+            height: 500,
+            child: Card(
+              elevation: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 10),
+                      Text(
+                        "Buscar contribuyente",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  controller: documentoController,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: "Documento de identidad",
+                                    prefix: DropdownButton(
+                                      value: cedulaTipo,
+                                      items: CedulaTipo.values.map((
+                                        CedulaTipo e,
+                                      ) {
+                                        return DropdownMenuItem<CedulaTipo>(
+                                          value: e,
+                                          child: Text(
+                                            e.name[0].toUpperCase().toString(),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (d) {
+                                        setState(() {
+                                          cedulaTipo = d;
+                                        });
+                                      },
+                                    ),
+                                    suffix: IconButton(
+                                      onPressed: () async {
+                                        actidades.clear();
 
-                                    actividadalicuota = null;
-                                    final List? info = await buscarRif(
-                                      context,
-                                      documentoController.text,
-                                      cedulaTipo,
-                                    );
+                                        actividadalicuota = null;
+                                        final List? info = await buscarRif(
+                                          context,
+                                          documentoController.text,
+                                          cedulaTipo,
+                                        );
 
-                                    alicuota = await busaralicuotas(
-                                      context,
-                                      documentoController.text,
-                                    );
-                                    for (var element in alicuota.keys) {
-                                      actidades.add(element);
-                                    }
+                                        alicuota = await busaralicuotas(
+                                          context,
+                                          documentoController.text,
+                                        );
+                                        for (var element in alicuota.keys) {
+                                          actidades.add(element);
+                                        }
 
-                                    if (info?[0] != null) {
-                                      nombreController.text = info?[0];
-                                      retencionController.text = info?[1];
-                                      activityController.text = info?[2];
-                                    }
-                                  },
-                                  icon: Icon(Icons.search),
+                                        if (info?[0] != null) {
+                                          nombreController.text = info?[0];
+                                          retencionController.text = info?[1];
+                                          activityController.text = info?[2];
+                                        }
+                                      },
+                                      icon: Icon(Icons.search),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            SizedBox(width: 10),
+                          ],
                         ),
-                        SizedBox(width: 10),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      controller: nombreController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: "Nombre",
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 50),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  nombreController.clear();
-                                  documentoController.clear();
-                                  descripcionController.clear();
-                                  retencionController.clear();
-                                  montoController.clear();
-                                  actidades = [];
-                                  actividadalicuota = null;
-                                },
-                                label: Icon(Icons.data_saver_off),
-                              ),
-                              SizedBox(height: 20),
-                              Text("Limpiar"),
-                            ],
+                      SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: nombreController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: "Nombre",
                           ),
                         ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  if (documentoController.text != '' &&
-                                      nombreController.text != '') {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const CreateFacture(),
-                                      ),
-                                    );
-                                  } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return Scaffold(
-                                            body: AlertDialog(
-                                              content: SizedBox(
-                                                width: 100,
-                                                height: 50,
-                                                child: Text(
-                                                  'Falta informacion del contribuyente',
-                                                ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text('Volver'),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  }
-                                },
-                                label: Icon(Icons.feed),
+                      ),
+                      SizedBox(height: 50),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      nombreController.clear();
+                                      documentoController.clear();
+                                      descripcionController.clear();
+                                      retencionController.clear();
+                                      montoController.clear();
+                                      actidades = [];
+                                      actividadalicuota = null;
+                                    },
+                                    label: Icon(Icons.data_saver_off),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text("Limpiar"),
+                                ],
                               ),
-                              SizedBox(height: 20),
-                              Text("Modelar"),
-                            ],
-                          ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      if (documentoController.text != '' &&
+                                          nombreController.text != '') {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const CreateFacture(),
+                                          ),
+                                        );
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              return Scaffold(
+                                                body: AlertDialog(
+                                                  content: SizedBox(
+                                                    width: 100,
+                                                    height: 50,
+                                                    child: Text(
+                                                      'Falta informacion del contribuyente',
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: Text('Volver'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    label: Icon(Icons.feed),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text("Modelar"),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

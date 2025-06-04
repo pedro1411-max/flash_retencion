@@ -45,8 +45,25 @@ class _FatureState extends State<Facture> {
               ),
               SizedBox(height: 20),
               rowResum("Documento: ", datos.documento),
-              rowResum("Nombre:", datos.nombre),
-              rowResum("Descripcion:", datos.descripcion),
+              Text(
+                'Nombre',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.00),
+              ),
+              Text(
+                datos.nombre,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.00),
+                softWrap: true,
+              ),
+              Text(
+                'Descripcion',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.00),
+              ),
+              Text(
+                datos.descripcion,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.00),
+                softWrap: true,
+              ),
+
               SizedBox(height: 30),
               rowResum("Monto Base:", datos.montoBase.toStringAsFixed(2)),
               rowResum(

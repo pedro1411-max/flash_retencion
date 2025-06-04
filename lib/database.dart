@@ -43,7 +43,7 @@ class Basedatos {
         ? desktop.getDatabasesPath()
         : mobile.getDatabasesPath());
 
-    final path = join(databasePath, 'retenciones.db');
+    final path = join(databasePath, 'retencione.db');
 
     return _isDesktop
         ? desktop.openDatabase(path, version: 1, onCreate: _onCreate)
@@ -54,7 +54,7 @@ class Basedatos {
     await db.execute(
       'CREATE TABLE Retenciones (id INTEGER PRIMARY KEY, documento TEXT, nombre TEXT, '
       'descripcion TEXT, montobase REAL, retenIVA REAL, retenISLR REAL, '
-      'retenIAE REAL, porcentIAE REAL)',
+      'retenIAE REAL, porcentIAE REAL, excentoIVA REAL, excentoISLR REAL)',
     );
   }
 
@@ -70,6 +70,8 @@ class Basedatos {
         'retenISLR': datos.retenIslr,
         'retenIAE': datos.retenIae,
         'porcentIAE': datos.porcentajeIAE,
+        'excentoIVA': datos.excentoIVA ? 1.00 : 0.00,
+        'excentoISLR': datos.excentoISLR ? 1.00 : 0.00,
       });
     } finally {
       await db.close();
@@ -104,6 +106,8 @@ class Basedatos {
           mapRetenciones[i]['retenIVA'],
           mapRetenciones[i]['retenIAE'],
           mapRetenciones[i]['porcentIAE'],
+          mapRetenciones[i]['excentoIVA'] == 1.00 ? true : false,
+          mapRetenciones[i]['excentoISLR'] == 1.00 ? true : false,
         ),
       );
     } finally {

@@ -8,6 +8,8 @@ class Retencion {
   double retenIva;
   double retenIae;
   double porcentajeIAE;
+  bool excentoIVA;
+  bool excentoISLR;
 
   Retencion(
     this.id,
@@ -19,20 +21,22 @@ class Retencion {
     this.retenIva,
     this.retenIae,
     this.porcentajeIAE,
+    this.excentoIVA,
+    this.excentoISLR,
   );
 
   double montoConIva() {
     double total = montoBase * 0.16 + montoBase;
-    return total;
+    return excentoIVA == true ? 0.00 : total;
   }
 
   double retencionIva() {
     double iva = montoBase * 0.16;
-    return iva * (retenIva / 100);
+    return excentoIVA == true ? 0.00 : iva * (retenIva / 100);
   }
 
   double retencionIslr() {
-    return montoBase * (retenIslr / 100);
+    return excentoISLR == true ? 0 : montoBase * (retenIslr / 100);
   }
 
   double retencionIae() {
@@ -40,6 +44,9 @@ class Retencion {
   }
 
   double montoTotal() {
-    return montoConIva() - retencionIva() - retencionIslr() - retencionIae();
+    double conIva =
+        montoConIva() - retencionIva() - retencionIslr() - retencionIae();
+    double sinIva = montoBase - retencionIslr() - retencionIae();
+    return excentoIVA == true ? sinIva : conIva;
   }
 }

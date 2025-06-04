@@ -71,6 +71,10 @@ class _MyHomePageState extends State<MyHomePage>
             SizedBox(height: 160),
 
             Image.asset('assets/1.png'),
+            Text(
+              "J-316208249",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
             Expanded(child: SizedBox()),
             Row(
               children: [
