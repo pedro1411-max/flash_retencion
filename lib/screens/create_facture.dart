@@ -1,9 +1,11 @@
 import 'package:flash_retencion/constanst.dart';
+import 'package:flash_retencion/models/actividades.dart';
 import 'package:flash_retencion/models/retencion.dart';
 import 'package:flash_retencion/screens/facture.dart';
 import 'package:flash_retencion/widgets/buscar_alicuotas.dart';
 import 'package:flash_retencion/widgets/buscar_rif.dart';
 import 'package:flutter/material.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 TextEditingController retencionController = TextEditingController();
 TextEditingController activityController = TextEditingController();
@@ -17,7 +19,6 @@ CedulaTipo? cedulaTipo = CedulaTipo.venezolano;
 Map alicuota = {};
 List<String> actidades = [];
 String? actividadalicuota;
-Porcentaje porcentajeIae = Porcentaje.p50;
 
 class CreateFacture extends StatefulWidget {
   const CreateFacture({super.key});
@@ -31,10 +32,19 @@ class _CreateFatureState extends State<CreateFacture> {
   PorcentajeTipo? porcentajeTipo = PorcentajeTipo.p2;
   bool? checkedValue = false;
   bool? checkedIVA = false;
+  bool? checkedAca = false;
+
+  List<String> items = [];
+  String? selectedValue;
+  final TextEditingController textEditingController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    for (var element in Actividades().actividadesEconomicas.keys) {
+      items.add(element);
+    }
     setState(() {});
   }
 
@@ -218,30 +228,130 @@ class _CreateFatureState extends State<CreateFacture> {
                       ),
                     ),
 
-                    Text(
-                      "Porcentaje de IAE %",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Center(
-                      child: DropdownButton(
-                        value: porcentajeIae,
-                        items: Porcentaje.values.map((Porcentaje e) {
-                          return DropdownMenuItem<Porcentaje>(
-                            value: e,
-                            child: Text(e.name.substring(1)),
-                          );
-                        }).toList(),
-                        onChanged: (d) {
-                          setState(() {
-                            porcentajeIae = d!;
-                          });
-                        },
-                      ),
-                    ),
                     SizedBox(height: 20),
                   ],
                 )
-              : SizedBox(),
+              : Column(
+                  children: [
+                    SizedBox(
+                      child: CheckboxListTile(
+                        title: Text(
+                          "El contribuyente se encuentra en el municipio Paez",
+                        ),
+                        value: checkedAca,
+                        onChanged: (newValue) {
+                          setState(() {
+                            checkedAca = newValue;
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity
+                            .leading, //  <-- leading Checkbox
+                      ),
+                    ),
+                    checkedAca == true
+                        ? Column(
+                            children: [
+                              SizedBox(height: 10),
+                              Text(
+                                'Lista de actividades economicas',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              DropdownButtonHideUnderline(
+                                child: DropdownButton2<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Seleccionar Actividad',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                  ),
+                                  items: items
+                                      .map(
+                                        (item) => DropdownMenuItem(
+                                          value: item,
+                                          child: Text(
+                                            item,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  value: selectedValue,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedValue = value;
+                                    });
+                                  },
+                                  buttonStyleData: const ButtonStyleData(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    height: 40,
+                                    width: 400,
+                                  ),
+                                  dropdownStyleData: const DropdownStyleData(
+                                    maxHeight: 400,
+                                  ),
+                                  menuItemStyleData: const MenuItemStyleData(
+                                    height: 40,
+                                  ),
+                                  dropdownSearchData: DropdownSearchData(
+                                    searchController: textEditingController,
+                                    searchInnerWidgetHeight: 50,
+                                    searchInnerWidget: Container(
+                                      height: 50,
+                                      padding: const EdgeInsets.only(
+                                        top: 8,
+                                        bottom: 4,
+                                        right: 8,
+                                        left: 8,
+                                      ),
+                                      child: TextFormField(
+                                        expands: true,
+                                        maxLines: null,
+                                        controller: textEditingController,
+                                        decoration: InputDecoration(
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 8,
+                                              ),
+                                          hintText: 'Seleccionar Actividad',
+                                          hintStyle: const TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    searchMatchFn: (item, searchValue) {
+                                      return item.value.toString().contains(
+                                        searchValue,
+                                      );
+                                    },
+                                  ),
+                                  //This to clear the search value when you close the menu
+                                  onMenuStateChange: (isOpen) {
+                                    if (!isOpen) {
+                                      textEditingController.clear();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : SizedBox(),
+                  ],
+                ),
+          SizedBox(height: 20),
           TextFormField(
             keyboardType: TextInputType.number,
             textAlign: TextAlign.end,
@@ -284,8 +394,18 @@ class _CreateFatureState extends State<CreateFacture> {
                           ? 3.00
                           : 5.00,
                       double.parse(retencionController.text),
-                      double.parse(alicuota[actividadalicuota] ?? '0'),
-                      porcentajeIae == Porcentaje.p50 ? 50 : 100,
+                      actidades.isNotEmpty
+                          ? double.parse(alicuota[actividadalicuota] ?? '0')
+                          : checkedAca == true
+                          ? Actividades()
+                                    .actividadesEconomicas[selectedValue] ??
+                                0.00
+                          : 0.00,
+                      actidades.isNotEmpty
+                          ? 50
+                          : checkedAca == true
+                          ? 100
+                          : 0,
                       checkedIVA == true ? true : false,
 
                       checkedValue == true ? true : false,
