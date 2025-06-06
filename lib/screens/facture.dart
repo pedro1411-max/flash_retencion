@@ -37,6 +37,7 @@ class _FatureState extends State<Facture> {
           padding: const EdgeInsets.all(15.0),
           child: ListView(
             children: [
+              Image.asset('assets/1.png', width: 100, height: 60),
               Center(
                 child: Text(
                   'Retenciones',
@@ -92,7 +93,7 @@ class _FatureState extends State<Facture> {
                         ElevatedButton.icon(
                           onPressed: () async {
                             await Basedatos.insertar(datos);
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>

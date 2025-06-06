@@ -370,6 +370,9 @@ class _CreateFatureState extends State<CreateFacture> {
                   onPressed: () {
                     retencionController.clear();
                     activityController.clear();
+
+                    descripcionController.clear();
+                    montoController.clear();
                   },
                   label: Icon(Icons.data_saver_off),
                 ),
@@ -410,7 +413,7 @@ class _CreateFatureState extends State<CreateFacture> {
 
                       checkedValue == true ? true : false,
                     );
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => Facture(true, retencion),
@@ -586,7 +589,7 @@ class _BusquedaState extends State<Busqueda> {
                                     onPressed: () {
                                       if (documentoController.text != '' &&
                                           nombreController.text != '') {
-                                        Navigator.push(
+                                        Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
