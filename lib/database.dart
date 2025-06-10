@@ -43,8 +43,8 @@ class Basedatos {
         ? desktop.getDatabasesPath()
         : mobile.getDatabasesPath());
 
-    final path = join(databasePath, 'retencione.db');
-
+    final path = join(databasePath, 'retenciones.db');
+    print(path);
     return _isDesktop
         ? desktop.openDatabase(path, version: 1, onCreate: _onCreate)
         : mobile.openDatabase(path, version: 1, onCreate: _onCreate);
@@ -52,9 +52,9 @@ class Basedatos {
 
   static Future<void> _onCreate(dynamic db, int version) async {
     await db.execute(
-      'CREATE TABLE Retenciones (id INTEGER PRIMARY KEY, documento TEXT, nombre TEXT, '
+      'CREATE TABLE Retenciones (id INTEGER PRIMARY KEY, documento TEXT, nombre TEXT, numfactura TEXT,numcontrol TEXT, '
       'descripcion TEXT, montobase REAL, retenIVA REAL, retenISLR REAL, '
-      'retenIAE REAL, porcentIAE REAL, excentoIVA REAL, excentoISLR REAL)',
+      'retenIAE REAL, porcentIAE REAL, excentoIVA REAL, excentoISLR REAL, fecha TEXT)',
     );
   }
 
@@ -65,6 +65,8 @@ class Basedatos {
         'documento': datos.documento,
         'nombre': datos.nombre,
         'descripcion': datos.descripcion,
+        'numfactura': datos.numFactura,
+        'numcontrol': datos.numControl,
         'montobase': datos.montoBase,
         'retenIVA': datos.retenIva,
         'retenISLR': datos.retenIslr,
@@ -72,6 +74,7 @@ class Basedatos {
         'porcentIAE': datos.porcentajeIAE,
         'excentoIVA': datos.excentoIVA ? 1.00 : 0.00,
         'excentoISLR': datos.excentoISLR ? 1.00 : 0.00,
+        'fecha': datos.fecha.toIso8601String(),
       });
     } finally {
       await db.close();
@@ -93,13 +96,15 @@ class Basedatos {
       final List<Map<String, dynamic>> mapRetenciones = await db.query(
         'Retenciones',
       );
-
+      print(mapRetenciones);
       return List.generate(
         mapRetenciones.length,
         (i) => Retencion(
           mapRetenciones[i]['id'],
           mapRetenciones[i]['documento'],
           mapRetenciones[i]['nombre'],
+          mapRetenciones[i]['numfactura'],
+          mapRetenciones[i]['numcontrol'],
           mapRetenciones[i]['descripcion'],
           mapRetenciones[i]['montobase'],
           mapRetenciones[i]['retenISLR'],
@@ -108,6 +113,7 @@ class Basedatos {
           mapRetenciones[i]['porcentIAE'],
           mapRetenciones[i]['excentoIVA'] == 1.00 ? true : false,
           mapRetenciones[i]['excentoISLR'] == 1.00 ? true : false,
+          DateTime.parse(mapRetenciones[i]['fecha']),
         ),
       );
     } finally {

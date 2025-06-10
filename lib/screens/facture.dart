@@ -21,7 +21,17 @@ class _FatureState extends State<Facture> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            if (widget.guardar == false) {
+              Navigator.pop(context);
+            }
+            if (widget.guardar) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyHomePage(title: 'Flash Retencion'),
+                ),
+              );
+            }
           },
           icon: Icon(Icons.arrow_back_rounded),
         ),
@@ -63,6 +73,12 @@ class _FatureState extends State<Facture> {
                 datos.descripcion,
                 style: TextStyle(fontSize: 18.00),
                 softWrap: true,
+              ),
+              rowResum("Numero de factura:", datos.numFactura),
+              rowResum('Numero de control:', datos.numControl),
+              rowResum(
+                'Fecha:',
+                "${datos.fecha.day}/${datos.fecha.month}/${datos.fecha.year}",
               ),
 
               SizedBox(height: 30),

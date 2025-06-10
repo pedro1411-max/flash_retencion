@@ -1,4 +1,5 @@
 import 'package:flash_retencion/constanst.dart';
+import 'package:flash_retencion/main.dart';
 import 'package:flash_retencion/models/actividades.dart';
 import 'package:flash_retencion/models/retencion.dart';
 import 'package:flash_retencion/screens/facture.dart';
@@ -14,6 +15,8 @@ TextEditingController nombreController = TextEditingController();
 
 TextEditingController descripcionController = TextEditingController();
 
+TextEditingController numfactura = TextEditingController();
+TextEditingController numcontrol = TextEditingController();
 TextEditingController montoController = TextEditingController();
 CedulaTipo? cedulaTipo = CedulaTipo.venezolano;
 Map alicuota = {};
@@ -30,6 +33,7 @@ class _CreateFatureState extends State<CreateFacture> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   CompraTipo? compraTipo = CompraTipo.compra;
   PorcentajeTipo? porcentajeTipo = PorcentajeTipo.p2;
+  PorcentajeNatural? porcentajeNatural = PorcentajeNatural.p1;
   bool? checkedValue = false;
   bool? checkedIVA = false;
   bool? checkedAca = false;
@@ -55,7 +59,12 @@ class _CreateFatureState extends State<CreateFacture> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MyHomePage(title: 'Flash Retencion'),
+              ),
+            );
           },
           icon: Icon(Icons.arrow_back_rounded),
         ),
@@ -95,6 +104,24 @@ class _CreateFatureState extends State<CreateFacture> {
             ),
           ),
           SizedBox(height: 20),
+          TextFormField(
+            controller: numfactura,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Numero de fatura",
+            ),
+          ),
+          SizedBox(height: 20),
+          TextFormField(
+            controller: numcontrol,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: "Numero de control",
+            ),
+          ),
+          SizedBox(height: 20),
 
           SizedBox(
             child: CheckboxListTile(
@@ -125,6 +152,8 @@ class _CreateFatureState extends State<CreateFacture> {
                       width: 100,
                       child: TextFormField(
                         textAlign: TextAlign.end,
+
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           suffix: Text("%"),
@@ -196,7 +225,22 @@ class _CreateFatureState extends State<CreateFacture> {
                               });
                             },
                           )
-                        : Text('1'),
+                        : DropdownButton(
+                            value: porcentajeNatural,
+                            items: PorcentajeNatural.values.map((
+                              PorcentajeNatural e,
+                            ) {
+                              return DropdownMenuItem<PorcentajeNatural>(
+                                value: e,
+                                child: Text(e.name[1].toUpperCase().toString()),
+                              );
+                            }).toList(),
+                            onChanged: (d) {
+                              setState(() {
+                                porcentajeNatural = d;
+                              });
+                            },
+                          ),
                     compraTipo == CompraTipo.compra ? SizedBox() : Text("%"),
                   ],
                 ),
@@ -384,13 +428,17 @@ class _CreateFatureState extends State<CreateFacture> {
                       1,
                       "${cedulaTipo!.name[0].toString().toUpperCase()}-${documentoController.text}",
                       nombreController.text,
+                      numfactura.text,
+                      numcontrol.text,
                       descripcionController.text,
                       double.parse(montoController.text),
                       compraTipo == CompraTipo.compra
                           ? 0
                           : cedulaTipo == CedulaTipo.venezolano ||
                                 cedulaTipo == CedulaTipo.extranjero
-                          ? 1.00
+                          ? porcentajeNatural == PorcentajeNatural.p1
+                                ? 1.00
+                                : 3.00
                           : porcentajeTipo == PorcentajeTipo.p2
                           ? 2.00
                           : porcentajeTipo == PorcentajeTipo.p3
@@ -412,6 +460,7 @@ class _CreateFatureState extends State<CreateFacture> {
                       checkedIVA == true ? true : false,
 
                       checkedValue == true ? true : false,
+                      DateTime.now(),
                     );
                     Navigator.pushReplacement(
                       context,
@@ -442,7 +491,6 @@ class _BusquedaState extends State<Busqueda> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {});
   }
@@ -597,30 +645,13 @@ class _BusquedaState extends State<Busqueda> {
                                           ),
                                         );
                                       } else {
-                                        Navigator.push(
+                                        ScaffoldMessenger.of(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (context) {
-                                              return Scaffold(
-                                                body: AlertDialog(
-                                                  content: SizedBox(
-                                                    width: 100,
-                                                    height: 50,
-                                                    child: Text(
-                                                      'Falta informacion del contribuyente',
-                                                    ),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Text('Volver'),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Falta informacion del contribuyente',
+                                            ),
                                           ),
                                         );
                                       }

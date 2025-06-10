@@ -1,6 +1,7 @@
 //comentario prueba
 
 import 'package:flash_retencion/screens/create_facture.dart';
+import 'package:flash_retencion/screens/reports.dart';
 import 'package:flash_retencion/screens/save_facture.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage>
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller = TabController(length: 2, vsync: this);
+    controller = TabController(length: 3, vsync: this);
     controller.addListener(() {
       setState(() {});
     });
@@ -110,12 +111,14 @@ class _MyHomePageState extends State<MyHomePage>
           tabs: [
             Text('Creacion', style: TextStyle(height: 2.5)),
             Text('Guardado', style: TextStyle(height: 2.5)),
+
+            Text('Reportes', style: TextStyle(height: 2.5)),
           ],
         ),
       ),
       body: TabBarView(
         controller: controller,
-        children: [Busqueda(), SaveFacture()],
+        children: [Busqueda(), SaveFacture(), ReportFacture()],
       ),
     );
   }

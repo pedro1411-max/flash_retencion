@@ -2,6 +2,8 @@ class Retencion {
   int id;
   String documento;
   String nombre;
+  String numFactura;
+  String numControl;
   String descripcion;
   double montoBase;
   double retenIslr;
@@ -10,11 +12,14 @@ class Retencion {
   double porcentajeIAE;
   bool excentoIVA;
   bool excentoISLR;
+  DateTime fecha;
 
   Retencion(
     this.id,
     this.documento,
     this.nombre,
+    this.numFactura,
+    this.numControl,
     this.descripcion,
     this.montoBase,
     this.retenIslr,
@@ -23,6 +28,7 @@ class Retencion {
     this.porcentajeIAE,
     this.excentoIVA,
     this.excentoISLR,
+    this.fecha,
   );
 
   double montoConIva() {
@@ -36,7 +42,13 @@ class Retencion {
   }
 
   double retencionIslr() {
-    return excentoISLR == true ? 0 : montoBase * (retenIslr / 100);
+    final esNatural = (nombre[0] == 'V') || (nombre[0] == 'E') ? true : false;
+
+    return excentoISLR == true
+        ? 0
+        : esNatural
+        ? (montoBase * (retenIslr / 100)) - 35.8333
+        : montoBase * (retenIslr / 100);
   }
 
   double retencionIae() {
