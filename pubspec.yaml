@@ -40,6 +40,12 @@ dependencies:
   sqflite_common_ffi: ^2.3.0
   path: ^1.8.3
   dropdown_button2: ^2.3.9
+  pdf: ^3.10.0
+  path_provider: ^2.1.1
+  file_picker: ^10.1.9
+  open_file: ^3.3.1
+  printing: ^5.11.0
+  google_fonts: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

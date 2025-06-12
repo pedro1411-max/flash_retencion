@@ -2,6 +2,12 @@ import 'package:flash_retencion/database.dart';
 import 'package:flash_retencion/main.dart';
 import 'package:flash_retencion/models/retencion.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:open_file/open_file.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart';
+import 'package:printing/printing.dart';
 
 class Facture extends StatefulWidget {
   final guardar;
@@ -15,8 +21,162 @@ class _FatureState extends State<Facture> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    print(widget.retencion.montoTotal());
     final datos = widget.retencion;
+
+    Future<Uint8List> loadImageAsset(String path) async {
+      final data = await rootBundle.load(path);
+      return data.buffer.asUint8List();
+    }
+
+    pw.Row buildPdfRow(String label, String value, {bool isTotal = false}) {
+      return pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            label,
+            style: pw.TextStyle(
+              fontSize: isTotal ? 18 : 14,
+              fontWeight: isTotal ? pw.FontWeight.bold : pw.FontWeight.normal,
+            ),
+          ),
+          pw.Text(
+            value,
+            style: pw.TextStyle(
+              fontSize: isTotal ? 18 : 14,
+              fontWeight: isTotal ? pw.FontWeight.bold : pw.FontWeight.normal,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Generar el documento PDF
+    Future<pw.Document> generatePDF() async {
+      final logoBytes = await loadImageAsset('assets/1.png');
+      final pdfImage = pw.MemoryImage(logoBytes);
+
+      final pdf = pw.Document();
+      final datos = widget.retencion;
+
+      pdf.addPage(
+        pw.Page(
+          build: (context) => pw.Column(
+            children: [
+              pw.Row(
+                children: [
+                  pw.Column(
+                    children: [
+                      pw.Image(pdfImage, height: 80, fit: pw.BoxFit.contain),
+                      pw.Text(
+                        "J316208249",
+                        style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
+                      pw.Text(
+                        "ZONA INDUSTRIAL ACARIGUA CALLE 2 ENTRE AVENIDAS 1 Y 2 GALPON 25",
+                        style: pw.TextStyle(fontSize: 5),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              pw.Center(
+                child: pw.Text(
+                  'Plantilla de pago/Retenciones',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+              pw.SizedBox(height: 30),
+              buildPdfRow("Documento:", datos.documento),
+              buildPdfRow("Nombre:", datos.nombre),
+              buildPdfRow("Descripción:", datos.descripcion),
+              buildPdfRow("N° Factura:", datos.numFactura),
+              buildPdfRow("N° de Control:", datos.numControl),
+
+              buildPdfRow(
+                "Fecha de creación:",
+                "${datos.fecha.day}/${datos.fecha.month}/${datos.fecha.year}",
+              ),
+              pw.Divider(),
+              buildPdfRow(
+                "Monto Base:",
+                "${datos.montoBase.toStringAsFixed(2)}bs",
+              ),
+              buildPdfRow(
+                "IVA:",
+                "${(datos.montoConIva()).toStringAsFixed(2)}bs",
+              ),
+              buildPdfRow(
+                "Retención IVA:",
+                "${datos.retencionIva().toStringAsFixed(2)}bs",
+              ),
+              buildPdfRow(
+                "Retención ISLR:",
+                "${datos.retencionIslr().toStringAsFixed(2)}bs",
+              ),
+              buildPdfRow(
+                "Retención IAE:",
+                "${datos.retencionIae().toStringAsFixed(2)}bs",
+              ),
+
+              pw.Divider(thickness: 2),
+              buildPdfRow(
+                "TOTAL:",
+                "${datos.montoTotal().toStringAsFixed(2)}bs",
+                isTotal: true,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      return pdf;
+    }
+
+    // Función para compartir/guardar según plataforma
+    Future<void> handlePDF() async {
+      try {
+        final pdf = await generatePDF();
+        final bytes = await pdf.save();
+        final fileName =
+            'Plantila_de_pago_Retención_${widget.retencion.numFactura}.pdf';
+
+        if (Platform.isAndroid) {
+          // Android: Compartir directamente
+          await Printing.sharePdf(bytes: bytes, filename: fileName);
+        } else if (Platform.isWindows || Platform.isLinux) {
+          // Windows/Linux: Seleccionar ruta
+          final savePath = await FilePicker.platform.saveFile(
+            dialogTitle: 'Guardar PDF de Retención',
+            fileName: fileName,
+            type: FileType.custom,
+            allowedExtensions: ['pdf'],
+          );
+
+          if (savePath != null) {
+            await File(savePath).writeAsBytes(bytes);
+            await OpenFile.open(savePath); // Abrir después de guardar
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('PDF guardado en: $savePath')),
+            );
+          }
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      }
+    }
+
+    // Helper para filas del PDF
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -127,7 +287,20 @@ class _FatureState extends State<Facture> {
                         SizedBox(),
                       ],
                     )
-                  : SizedBox(),
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            handlePDF();
+                          },
+                          label: Icon(Icons.print_outlined),
+                        ),
+                        SizedBox(),
+                      ],
+                    ),
+              SizedBox(height: 10),
             ],
           ),
         ),

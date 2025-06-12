@@ -95,6 +95,7 @@ class Basedatos {
     try {
       final List<Map<String, dynamic>> mapRetenciones = await db.query(
         'Retenciones',
+        orderBy: 'id DESC',
       );
       print(mapRetenciones);
       return List.generate(

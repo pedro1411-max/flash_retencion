@@ -620,6 +620,8 @@ class _BusquedaState extends State<Busqueda> {
                                       descripcionController.clear();
                                       retencionController.clear();
                                       montoController.clear();
+                                      numfactura.clear();
+                                      numcontrol.clear();
                                       actidades = [];
                                       actividadalicuota = null;
                                     },
