@@ -114,7 +114,12 @@ class _ReportFactureState extends State<ReportFacture> {
                           ),
                         ),
                         pw.Text(
-                          "ZONA INDUSTRIAL ACARIGUA CALLE 2 ENTRE AVENIDAS 1 Y 2 GALPON 25",
+                          "CALLE 2/AVS. 1 Y 2 EDIF CENTRO AGROINDUSTRIAL AGI PISO .OF.",
+                          style: pw.TextStyle(fontSize: 5),
+                        ),
+                        pw.Text(
+                          "ZONA INDUSTRIAL NORTE ACARIGUA PORTUGUESA",
+
                           style: pw.TextStyle(fontSize: 5),
                         ),
                       ],
@@ -226,57 +231,79 @@ class _ReportFactureState extends State<ReportFacture> {
                     SizedBox(),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        final List<Retencion> ListOriginal =
+                        final List<Retencion> listOriginal =
                             await Basedatos.viewData();
-                        final List<Retencion> ListFilter = ListOriginal.where((
+                        final List<Retencion> listFilter = listOriginal.where((
                           e,
                         ) {
-                          return (e.fecha.day >= startDate!.day &&
-                                  e.fecha.month >= startDate!.month &&
-                                  e.fecha.year >= startDate!.year) &&
-                              (e.fecha.day <= endDate!.day &&
-                                  e.fecha.month <= endDate!.month &&
-                                  e.fecha.year <= endDate!.year);
-                        }).toList();
-
-                        try {
-                          final pdf = await generatePDF(ListFilter);
-                          final bytes = await pdf.save();
-                          final fileName =
-                              'Reportes_Plantillas_de_pago_Retencion.pdf';
-
-                          if (Platform.isAndroid) {
-                            // Android: Compartir directamente
-                            await Printing.sharePdf(
-                              bytes: bytes,
-                              filename: fileName,
-                            );
-                          } else if (Platform.isWindows || Platform.isLinux) {
-                            // Windows/Linux: Seleccionar ruta
-                            final savePath = await FilePicker.platform.saveFile(
-                              dialogTitle: 'Guardar PDF de Retención',
-                              fileName: fileName,
-                              type: FileType.custom,
-                              allowedExtensions: ['pdf'],
-                            );
-
-                            if (savePath != null) {
-                              await File(savePath).writeAsBytes(bytes);
-                              await OpenFile.open(
-                                savePath,
-                              ); // Abrir después de guardar
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('PDF guardado en: $savePath'),
-                                ),
-                              );
-                            }
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: ${e.toString()}')),
+                          final fechaObj = DateTime(
+                            e.fecha.year,
+                            e.fecha.month,
+                            e.fecha.day,
                           );
+                          final start = DateTime(
+                            startDate!.year,
+                            startDate!.month,
+                            startDate!.day,
+                          );
+                          final end = DateTime(
+                            endDate!.year,
+                            endDate!.month,
+                            endDate!.day,
+                          );
+
+                          return fechaObj.compareTo(start) >= 0 &&
+                              fechaObj.compareTo(end) <= 0;
+                        }).toList();
+                        if (listFilter.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'No existen documentos en este rango de tiempo',
+                              ),
+                            ),
+                          );
+                        } else {
+                          try {
+                            final pdf = await generatePDF(listFilter);
+                            final bytes = await pdf.save();
+                            final fileName =
+                                'Reportes_Plantillas_de_pago_Retencion.pdf';
+
+                            if (Platform.isAndroid) {
+                              // Android: Compartir directamente
+                              await Printing.sharePdf(
+                                bytes: bytes,
+                                filename: fileName,
+                              );
+                            } else if (Platform.isWindows || Platform.isLinux) {
+                              // Windows/Linux: Seleccionar ruta
+                              final savePath = await FilePicker.platform
+                                  .saveFile(
+                                    dialogTitle: 'Guardar PDF de Retención',
+                                    fileName: fileName,
+                                    type: FileType.custom,
+                                    allowedExtensions: ['pdf'],
+                                  );
+
+                              if (savePath != null) {
+                                await File(savePath).writeAsBytes(bytes);
+                                await OpenFile.open(
+                                  savePath,
+                                ); // Abrir después de guardar
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('PDF guardado en: $savePath'),
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: ${e.toString()}')),
+                            );
+                          }
                         }
                       },
                       label: Icon(Icons.print_outlined),

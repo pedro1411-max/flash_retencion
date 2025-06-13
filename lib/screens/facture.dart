@@ -75,7 +75,12 @@ class _FatureState extends State<Facture> {
                         ),
                       ),
                       pw.Text(
-                        "ZONA INDUSTRIAL ACARIGUA CALLE 2 ENTRE AVENIDAS 1 Y 2 GALPON 25",
+                        "CALLE 2/AVS. 1 Y 2 EDIF CENTRO AGROINDUSTRIAL AGI PISO .OF.",
+                        style: pw.TextStyle(fontSize: 5),
+                      ),
+                      pw.Text(
+                        "ZONA INDUSTRIAL NORTE ACARIGUA PORTUGUESA",
+
                         style: pw.TextStyle(fontSize: 5),
                       ),
                     ],

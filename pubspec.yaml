@@ -46,17 +46,27 @@ dependencies:
   open_file: ^3.3.1
   printing: ^5.11.0
   google_fonts: any
+
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_test:
     sdk: flutter
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  msix: ^3.16.9
+msix_config:
+  display_name: Flash Retencion
+  publisher_display_name: Pedro Evia
+  msix_version: 1.0.0.0
 
+flutter_icons:
+  android: true
+
+  image_path: "assets/Icon.jpg"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
